@@ -1,0 +1,57 @@
+# docker-compose.yml
+# db -> django -> redis -> nginx -> celery
+
+version: '3'
+
+services:
+    nginx:
+      container_name: nginx
+      build: ./nginx
+      image: nginx
+      restart: always
+      ports:
+        - "80:80"
+      volumes:
+        - ./django:/srv/capstoneproject
+        - ./log:/var/log/nginx
+      depends_on:
+        - django
+        
+    # database:
+    #   image: mysql
+    #   container_name: mysql
+    #   restart: always
+    #   ports:
+    #     - "3308:3308"
+    #   environment: 
+    #     MYSQL_ROOT_PASSWORD: kk10821082
+    #     MYSQL_DATABASE: edsuser
+    #   volumes:
+    #     - ./database/mysql_data:/var/lib/mysql
+    #   command:
+    #     - --character-set-server=utf8mb4
+    #     - --collation-server=utf8mb4_unicode_ci
+
+    django:
+      container_name: django
+      build: ./django
+      image: django
+      restart: always
+      command: uwsgi --ini uwsgi.ini
+      volumes:
+        - ./django:/srv/capstoneproject
+        - ./log:/var/log/uwsgi
+
+    redis:
+      container_name: capstone-redis
+      image: redis
+      ports:
+        - "6379:6379"
+    # celery:
+    #   container_name: celery
+    #   image: django
+    #   environment:
+    #   volumes:
+    #   working_dir:
+    #   command:
+    #   depends_on:
